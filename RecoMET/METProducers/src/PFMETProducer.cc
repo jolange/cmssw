@@ -97,7 +97,7 @@ namespace cms
    event.getByToken(rhoToken_, rho);
 
 	//Compute the covariance matrix and fill it
-	reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, candInput, *rho, resObj, resSFObj);
+	reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, candInput, *rho, resObj, resSFObj, event.isRealData() );
 
 	return cov;
   }

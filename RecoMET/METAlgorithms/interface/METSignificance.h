@@ -42,7 +42,8 @@ namespace metsig {
 					  const edm::View<reco::Candidate>& pfCandidates,
                  double rho,
                  JME::JetResolution & resObj,
-                 JME::JetResolutionScaleFactor & resSFObj);
+                 JME::JetResolutionScaleFactor & resSFObj,
+                 bool isRealData);
      double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met ) const;
 
       private:
