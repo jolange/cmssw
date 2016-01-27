@@ -75,13 +75,16 @@ namespace cms
    edm::Handle<double> rho;
    event.getByToken(rhoToken_, rho);
 
-   JME::JetResolution resObj = JME::JetResolution::get(setup, jetResType_);
+   edm::FileInPath fPhiRes("RecoMET/METProducers/data/Summer15_25nsV6_MC_PhiResolution_AK4PFchs.txt");  // temporary text file for JER phi
+
+   JME::JetResolution resPtObj = JME::JetResolution::get(setup, jetResType_);
+   JME::JetResolution resPhiObj = JME::JetResolution(fPhiRes.fullPath().c_str());
    JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(setup, jetResType_);
    
    //
    // compute the significance
    //
-   const reco::METCovMatrix cov = metSigAlgo_->getCovariance( *jets, leptons, *pfCandidates, *rho, resObj, resSFObj, event.isRealData() );
+   const reco::METCovMatrix cov = metSigAlgo_->getCovariance( *jets, leptons, *pfCandidates, *rho, resPtObj, resPhiObj, resSFObj, event.isRealData() );
    double sig  = metSigAlgo_->getSignificance(cov, met);
 
    std::auto_ptr<double> significance (new double);

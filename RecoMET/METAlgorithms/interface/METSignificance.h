@@ -41,7 +41,8 @@ namespace metsig {
 					  const std::vector< edm::Handle<reco::CandidateView> >& leptons,
 					  const edm::View<reco::Candidate>& pfCandidates,
                  double rho,
-                 JME::JetResolution & resObj,
+                 JME::JetResolution & resPtObj,
+                 JME::JetResolution & resPhiObj,
                  JME::JetResolutionScaleFactor & resSFObj,
                  bool isRealData);
      double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met ) const;
@@ -55,11 +56,6 @@ namespace metsig {
          std::vector<double> jetEtas_;
          std::vector<double> jetParams_;
          std::vector<double> pjetParams_;
-
-         JetResolution* phiRes_;
-
-         JME::JetResolution ptRes13TeV_;
-
    };
 
 }

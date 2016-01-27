@@ -90,14 +90,17 @@ namespace cms
 	edm::Handle<edm::View<reco::Jet> > inputJets;
 	event.getByToken( jetToken_, inputJets );
 
-   JME::JetResolution resObj = JME::JetResolution::get(setup, jetResType_);
+   edm::FileInPath fPhiRes("RecoMET/METProducers/data/Summer15_25nsV6_MC_PhiResolution_AK4PFchs.txt");  // temporary text file for JER phi
+
+   JME::JetResolution resPtObj = JME::JetResolution::get(setup, jetResType_);
+   JME::JetResolution resPhiObj = JME::JetResolution(fPhiRes.fullPath().c_str());
    JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(setup, jetResType_);
 
    edm::Handle<double> rho;
    event.getByToken(rhoToken_, rho);
 
 	//Compute the covariance matrix and fill it
-	reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, candInput, *rho, resObj, resSFObj, event.isRealData() );
+	reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, candInput, *rho, resPtObj, resPhiObj, resSFObj, event.isRealData() );
 
 	return cov;
   }

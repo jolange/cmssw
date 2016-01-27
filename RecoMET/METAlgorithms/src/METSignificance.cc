@@ -30,15 +30,9 @@ metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {
   jetParams_ = cfgParams.getParameter<std::vector<double> >("jpar");
   pjetParams_ = cfgParams.getParameter<std::vector<double> >("pjpar");
 
-
-  edm::FileInPath fphi("CondFormats/JetMETObjects/data/"+phiResFileName);
-
-  phiRes_ = new JetResolution(fphi.fullPath().c_str(),false);
-
 }
 
 metsig::METSignificance::~METSignificance() {
-  delete phiRes_;
 }
 
 
@@ -47,7 +41,8 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 				       const std::vector< edm::Handle<reco::CandidateView> >& leptons,
 				       const edm::View<reco::Candidate>& pfCandidates,
                    double rho,
-                   JME::JetResolution& resObj,
+                   JME::JetResolution& resPtObj,
+                   JME::JetResolution& resPhiObj,
                    JME::JetResolutionScaleFactor& resSFObj,
                    bool isRealData) {
   
@@ -121,9 +116,8 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
       parameters.setJetPt(jpt).setJetEta(jeta).setRho(rho);
 
       // jet energy resolutions
-      double jeta_res = (std::abs(jeta) < 9.9) ? jeta : 9.89; // JetResolutions defined for |eta|<9.9
-      double sigmapt = resObj.getResolution(parameters);
-      double sigmaphi = phiRes_->parameterEtaEval("sigma",jeta_res,jpt);
+      double sigmapt = resPtObj.getResolution(parameters);
+      double sigmaphi = resPhiObj.getResolution(parameters);
       double sigmaSF = isRealData ? resSFObj.getScaleFactor(parameters) : 1.0;
 
       // split into high-pt and low-pt sector
