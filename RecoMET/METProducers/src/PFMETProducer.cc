@@ -28,8 +28,10 @@ namespace cms
 	  lepTokens_.push_back( mayConsume<edm::View<reco::Candidate> >( *it ) );
 	}
   
-   jetResType_ = iConfig.getParameter<std::string>("srcJetRes");
-   rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
+   jetSFType_ = iConfig.getParameter<std::string>("srcJetSF");
+   jetResPtType_ = iConfig.getParameter<std::string>("srcJetResPt");
+   jetResPhiType_ = iConfig.getParameter<std::string>("srcJetResPhi");
+   rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
       }
 
     std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
@@ -90,11 +92,9 @@ namespace cms
 	edm::Handle<edm::View<reco::Jet> > inputJets;
 	event.getByToken( jetToken_, inputJets );
 
-   edm::FileInPath fPhiRes("RecoMET/METProducers/data/Summer15_25nsV6_MC_PhiResolution_AK4PFchs.txt");  // temporary text file for JER phi
-
-   JME::JetResolution resPtObj = JME::JetResolution::get(setup, jetResType_);
-   JME::JetResolution resPhiObj = JME::JetResolution(fPhiRes.fullPath().c_str());
-   JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(setup, jetResType_);
+   JME::JetResolution resPtObj = JME::JetResolution::get(setup, jetResPtType_);
+   JME::JetResolution resPhiObj = JME::JetResolution::get(setup, jetResPhiType_);
+   JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(setup, jetSFType_);
 
    edm::Handle<double> rho;
    event.getByToken(rhoToken_, rho);
