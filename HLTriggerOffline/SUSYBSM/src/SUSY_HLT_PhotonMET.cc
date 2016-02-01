@@ -21,7 +21,7 @@ SUSY_HLT_PhotonMET::SUSY_HLT_PhotonMET(const edm::ParameterSet& ps)
 
 SUSY_HLT_PhotonMET::~SUSY_HLT_PhotonMET()
 {
-   edm::LogInfo("SUSY_HLT_PhotonMET") << "Destructor SUSY_HLT_PhotonMET::~SUSY_HLT_PhotonMET " << std::endl;
+  edm::LogInfo("SUSY_HLT_PhotonMET") << "Destructor SUSY_HLT_PhotonMET::~SUSY_HLT_PhotonMET " << std::endl;
 }
 
 void SUSY_HLT_PhotonMET::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
@@ -29,7 +29,7 @@ void SUSY_HLT_PhotonMET::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
   edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::beginRun" << std::endl;
 }
 
- void SUSY_HLT_PhotonMET::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &)
+void SUSY_HLT_PhotonMET::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &)
 {
   edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::bookHistograms" << std::endl;
   //book at beginRun
@@ -37,9 +37,9 @@ void SUSY_HLT_PhotonMET::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
 }
 
 void SUSY_HLT_PhotonMET::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-  edm::EventSetup const& context)
+                                              edm::EventSetup const& context)
 {
-   edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::beginLuminosityBlock" << std::endl;
+  edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::beginLuminosityBlock" << std::endl;
 }
 
 void SUSY_HLT_PhotonMET::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
@@ -127,5 +127,5 @@ void SUSY_HLT_PhotonMET::bookHistos(DQMStore::IBooker & ibooker_)
   ibooker_.cd();
 }
 
- //define this as a plug-in
+//define this as a plug-in
 DEFINE_FWK_MODULE(SUSY_HLT_PhotonMET);

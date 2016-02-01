@@ -24,16 +24,16 @@
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 
 namespace reco{
-    typedef std::vector<reco::Photon> PhotonCollection;
+  typedef std::vector<reco::Photon> PhotonCollection;
 }
 
 class SUSY_HLT_PhotonMET: public DQMEDAnalyzer
 {
-  public:
+public:
   SUSY_HLT_PhotonMET(const edm::ParameterSet& ps);
   virtual ~SUSY_HLT_PhotonMET();
 
-  protected:
+protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
@@ -41,7 +41,7 @@ class SUSY_HLT_PhotonMET: public DQMEDAnalyzer
   void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
-  private:
+private:
   //histos booking function
   void bookHistos(DQMStore::IBooker &);
 
