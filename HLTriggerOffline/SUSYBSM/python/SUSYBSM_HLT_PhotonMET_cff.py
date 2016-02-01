@@ -7,7 +7,7 @@ SUSY_HLT_PhotonMET = cms.EDAnalyzer("SUSY_HLT_PhotonMET",
    TriggerResults = cms.InputTag('TriggerResults','','HLT'),
    HLTProcess = cms.string('HLT'),
    TriggerPath = cms.string('HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40_v'),
-   TriggerPathBase = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
+   TriggerPathBase = cms.string('HLT_IsoMu27_v'),
    ptThrOffline = cms.untracked.double(50),
    metThrOffline = cms.untracked.double(100),
 )
