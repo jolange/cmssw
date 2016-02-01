@@ -17,7 +17,7 @@ SUSY_HLT_PhotonMET_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
-       "photonPtTurnOn_eff 'Turn-on vs photon; E_{T} (GeV); #epsilon' photonTurnOn_num photonTurnOn_den",
-       "htTurnOn_eff 'Turn-on vs H_{T}; H_{T} (GeV); #epsilon' pfHtTurnOn_num pfHtTurnOn_den",
+       "photonPtTurnOn_eff 'Turn-on vs photon; p_{T} (GeV); #epsilon' photonTurnOn_num photonTurnOn_den",
+       "metTurnOn_eff 'Turn-on vs E_{T}^{miss}; E_{T}^{miss} (GeV); #epsilon' pfMetTurnOn_num pfMetTurnOn_den",
     )
 )
