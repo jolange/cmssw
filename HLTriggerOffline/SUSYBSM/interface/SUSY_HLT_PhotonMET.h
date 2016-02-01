@@ -27,8 +27,8 @@ namespace reco{
     typedef std::vector<reco::Photon> PhotonCollection;
 }
 
-class SUSY_HLT_PhotonMET: public DQMEDAnalyzer{
-
+class SUSY_HLT_PhotonMET: public DQMEDAnalyzer
+{
   public:
   SUSY_HLT_PhotonMET(const edm::ParameterSet& ps);
   virtual ~SUSY_HLT_PhotonMET();
@@ -49,20 +49,19 @@ class SUSY_HLT_PhotonMET: public DQMEDAnalyzer{
   edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollection_;
   edm::EDGetTokenT<reco::PhotonCollection> thePhotonCollection_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-  edm::EDGetTokenT<trigger::TriggerEvent> theTrigSummary_;
 
   std::string triggerPath_;
-  std::string triggerPathAuxiliaryForHadronic_;
+  std::string triggerPathBase_;
   edm::InputTag triggerFilterPhoton_;
-  edm::InputTag triggerFilterHt_;
+  edm::InputTag triggerFilterMET_;
   double ptThrOffline_;
-  double htThrOffline_;
+  double metThrOffline_;
 
   // Histograms
-  MonitorElement* h_photonPt;
-  MonitorElement* h_ht;
-  MonitorElement* h_htTurnOn_num;
-  MonitorElement* h_htTurnOn_den;
+  MonitorElement* h_recoPhotonPt;
+  MonitorElement* h_recoMet;
+  MonitorElement* h_metTurnOn_num;
+  MonitorElement* h_metTurnOn_den;
   MonitorElement* h_photonTurnOn_num;
   MonitorElement* h_photonTurnOn_den;
 

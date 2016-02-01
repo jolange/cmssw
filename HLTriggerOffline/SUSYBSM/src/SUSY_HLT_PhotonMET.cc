@@ -10,16 +10,13 @@ SUSY_HLT_PhotonMET::SUSY_HLT_PhotonMET(const edm::ParameterSet& ps)
 {
   edm::LogInfo("SUSY_HLT_PhotonMET") << "Constructor SUSY_HLT_PhotonMET::SUSY_HLT_PhotonMET " << std::endl;
   // Get parameters from configuration file
-  theTrigSummary_ = consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("trigSummary"));
   thePfMETCollection_ = consumes<reco::PFMETCollection>(ps.getParameter<edm::InputTag>("pfMETCollection"));
   thePhotonCollection_ = consumes<reco::PhotonCollection>(ps.getParameter<edm::InputTag>("photonCollection"));
   triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
   triggerPath_ = ps.getParameter<std::string>("TriggerPath");
-  triggerPathAuxiliaryForHadronic_ = ps.getParameter<std::string>("TriggerPathAuxiliaryForHadronic");
-  triggerFilterPhoton_ = ps.getParameter<edm::InputTag>("TriggerFilterPhoton");
-  triggerFilterHt_ = ps.getParameter<edm::InputTag>("TriggerFilterHt");
+  triggerPathBase_ = ps.getParameter<std::string>("TriggerPathBase");
   ptThrOffline_ = ps.getUntrackedParameter<double>("ptThrOffline");
-  htThrOffline_ = ps.getUntrackedParameter<double>("htThrOffline");
+  metThrOffline_ = ps.getUntrackedParameter<double>("metThrOffline");
 }
 
 SUSY_HLT_PhotonMET::~SUSY_HLT_PhotonMET()
@@ -45,12 +42,12 @@ void SUSY_HLT_PhotonMET::beginLuminosityBlock(edm::LuminosityBlock const& lumiSe
    edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::beginLuminosityBlock" << std::endl;
 }
 
-void SUSY_HLT_PhotonMET::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
+void SUSY_HLT_PhotonMET::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
+{
   edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::analyze" << std::endl;
 
-
   //-------------------------------
-  //--- MET / HT
+  //--- MET
   //-------------------------------
   edm::Handle<reco::PFMETCollection> pfMETCollection;
   e.getByToken(thePfMETCollection_, pfMETCollection);
@@ -76,60 +73,31 @@ void SUSY_HLT_PhotonMET::analyze(edm::Event const& e, edm::EventSetup const& eSe
     return;
   }
 
-  //-------------------------------
-  //--- Trigger
-  //-------------------------------
-  edm::Handle<trigger::TriggerEvent> triggerSummary;
-  e.getByToken(theTrigSummary_, triggerSummary);
-  if(!triggerSummary.isValid()) {
-    edm::LogError ("SUSY_HLT_PhotonMET") << "invalid collection: TriggerSummary" << "\n";
-    return;
-  }
+  // get reco photon and met
+  float const recoPhotonPt = photonCollection->size() ? photonCollection->begin()->et() : 0;
+  float const recoMET = pfMETCollection->size() ? pfMETCollection->begin()->et() : 0;
+  h_recoPhotonPt->Fill(recoPhotonPt);
+  h_recoMet->Fill(recoMET);
 
-  // get online objects
-  trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
-
-  // get the photon object
-  size_t filterIndexPhoton = triggerSummary->filterIndex( triggerFilterPhoton_ );
-  if( filterIndexPhoton < triggerSummary->sizeFilters() ) {
-      const trigger::Keys& keys = triggerSummary->filterKeys( filterIndexPhoton );
-      if( keys.size() ) {
-          // take the leading photon
-          float pt = triggerObjects[ keys[0] ].pt();
-          h_photonPt->Fill( pt );
-      }
-  }
-
-  // get ht
-  size_t filterIndexHt = triggerSummary->filterIndex( triggerFilterHt_ );
-  if( filterIndexHt < triggerSummary->sizeFilters() ) {
-      const trigger::Keys& keys = triggerSummary->filterKeys( filterIndexHt );
-      if( keys.size() ) {
-          float ht = triggerObjects[ keys[0] ].pt();
-          h_ht->Fill( ht );
-      }
-  }
-
-  bool hasFired = false, hasFiredAuxiliaryForHadronicLeg=false;
-  const edm::TriggerNames& trigNames = e.triggerNames(*hltresults);
-  unsigned int numTriggers = trigNames.size();
+  // the actual trigger efficiencies
+  bool hasFired = false, hasFiredBaseTrigger=false;
+  edm::TriggerNames const &trigNames = e.triggerNames(*hltresults);
+  unsigned int const numTriggers = trigNames.size();
   for( unsigned int hltIndex=0; hltIndex<numTriggers; ++hltIndex ){
     if (trigNames.triggerName(hltIndex).find(triggerPath_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFired = true;
-    if (trigNames.triggerName(hltIndex).find(triggerPathAuxiliaryForHadronic_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
+    if (trigNames.triggerName(hltIndex).find(triggerPathBase_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredBaseTrigger = true;
   }
 
-  if(hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) {
-   float recoPhotonPt = photonCollection->size() ? photonCollection->begin()->et() : 0;
-   float recoHt = pfMETCollection->size() ? pfMETCollection->begin()->et() : 0;
-
-    if(hasFired){
-      if( photonCollection->size() && recoHt >= htThrOffline_ ) h_photonTurnOn_num -> Fill( recoPhotonPt );
-      if( pfMETCollection->size() && recoPhotonPt >= ptThrOffline_ ) h_htTurnOn_num -> Fill( recoHt );
+  if(hasFiredBaseTrigger || !e.isRealData()) {
+    // passed base trigger
+    if (recoPhotonPt>ptThrOffline_) h_metTurnOn_den->Fill(recoMET);
+    if (recoMET>metThrOffline_) h_photonTurnOn_den->Fill(recoPhotonPt);
+    if (hasFired){
+      // passed base and signal trigger
+      if (recoPhotonPt>ptThrOffline_) h_metTurnOn_num->Fill(recoMET);
+      if (recoMET>metThrOffline_) h_photonTurnOn_num->Fill(recoPhotonPt);
     }
-    if( photonCollection->size() && recoHt >= htThrOffline_ ) h_photonTurnOn_den -> Fill( recoPhotonPt );
-    if( pfMETCollection->size() && recoPhotonPt >= ptThrOffline_ ) h_htTurnOn_den -> Fill( recoPhotonPt );
   }
-
 }
 
 void SUSY_HLT_PhotonMET::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
@@ -149,12 +117,12 @@ void SUSY_HLT_PhotonMET::bookHistos(DQMStore::IBooker & ibooker_)
   ibooker_.setCurrentFolder("HLT/SUSYBSM/" + triggerPath_);
 
   //offline quantities
-  h_photonPt = ibooker_.book1D("photonPt", "Photon transverse momentum; p_{T} (GeV)", 20, 0, 500 );
-  h_ht = ibooker_.book1D("ht", "Hadronic activity;H_{T} (GeV)", 20, 0, 2000 );
-  h_htTurnOn_num = ibooker_.book1D("pfHtTurnOn_num", "PF HT Turn On Numerator",   20, 300, 800 );
-  h_htTurnOn_den = ibooker_.book1D("pfHtTurnOn_den", "PF HT Turn On Denominator", 20, 300, 800 );
-  h_photonTurnOn_num = ibooker_.book1D("photonTurnOn_num", "Photon Turn On Numerator",   20, 70, 130 );
-  h_photonTurnOn_den = ibooker_.book1D("photonTurnOn_den", "Photon Turn On Denominator", 20, 70, 130 );
+  h_recoPhotonPt = ibooker_.book1D("recoPhotonPt", "reco Photon transverse momentum; p_{T} (GeV)", 20, 0, 1000);
+  h_recoMet = ibooker_.book1D("recoMet", "reco Missing transverse energy;E_{T}^{miss} (GeV)", 20, 0, 1000);
+  h_metTurnOn_num = ibooker_.book1D("pfMetTurnOn_num", "PF MET Turn On Numerator",   20, 0, 500);
+  h_metTurnOn_den = ibooker_.book1D("pfMetTurnOn_den", "PF MET Turn On Denominator", 20, 0, 500);
+  h_photonTurnOn_num = ibooker_.book1D("photonTurnOn_num", "Photon Turn On Numerator",   20, 0, 1000);
+  h_photonTurnOn_den = ibooker_.book1D("photonTurnOn_den", "Photon Turn On Denominator", 20, 0, 1000);
 
   ibooker_.cd();
 }
